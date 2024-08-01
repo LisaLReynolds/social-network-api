@@ -17,6 +17,6 @@ const reactionSchema = new Schema({
   },
 });
 
-const Reaction = Model("Reaction", reactionSchema);
+const Reaction = Model("reaction", reactionSchema);
 
 module.exports = Reaction;

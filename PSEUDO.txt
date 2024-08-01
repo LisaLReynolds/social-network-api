@@ -1,0 +1,3 @@
+A User can have many Thoughts
+
+A User can have many Friends
