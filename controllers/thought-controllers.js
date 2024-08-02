@@ -84,7 +84,7 @@ module.exports = {
     }
   },
   //delete a reaction by unique id
-  async removereaction(req, res) {
+  async removeReaction(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
