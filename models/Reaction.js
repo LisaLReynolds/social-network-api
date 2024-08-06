@@ -1,9 +1,14 @@
-const { Schema, model } = require("mongoose");
+const { Schema, Types } = require("mongoose");
+const dayjs = require("dayjs");
 
 const reactionSchema = new Schema({
   reactionId: {
     type: Schema.Types.ObjectId,
     default: () => new Types.ObjectId(),
+  },
+  username: {
+    type: String,
+    required: true,
   },
   reactionBody: {
     type: String,
@@ -14,9 +19,15 @@ const reactionSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    get: ts => dayjs(ts).format("MM/DD/YYYY")
   },
+
+},{
+  toJSON: {
+    getters: true
+  },
+  id: false, _id: false
 });
 
-const Reaction = model("Reaction", reactionSchema);
 
-module.exports = Reaction;
+module.exports = reactionSchema;

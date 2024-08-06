@@ -15,14 +15,14 @@ module.exports = {
   //get a user by unique id
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId }).select("_v");
+      const user = await User.findOne({ _id: req.params.userId }).select("-__v").populate("friends").populate("thoughts");
 
       if (!user) {
         return res.status(404).json({ message: "No user with that ID" });
       }
       res.json(user);
     } catch (err) {
-      res.status(500).json(err);
+      res.status(500).json(err.message);
     }
   },
   //create a user
@@ -54,7 +54,7 @@ module.exports = {
   //delete a user by unique id
   async deleteUser(req, res) {
     try {
-      const user = await User.findOneAndRemove({ _id: req.params.userId });
+      const user = await User.findOneAndDelete({ _id: req.params.userId });
       if (!user) {
         return res.status(404).json({ message: "No user with that ID" });
       }
@@ -68,7 +68,7 @@ module.exports = {
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { friends: req.body } },
+        { $addToSet: { friends: req.params.friendId } },
         { runValidators: true, new: true }
       );
       if (!user) {

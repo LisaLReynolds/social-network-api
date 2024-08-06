@@ -1,4 +1,5 @@
-const thought = require("../models/thought");
+const Thought = require("../models/Thought");
+const User = require("../models/User");
 //write our functions for thoughts
 
 //delete a reaction by unique id
@@ -17,7 +18,7 @@ module.exports = {
     try {
       const thought = await Thought.findOne({
         _id: req.params.thoughtId,
-      }).select("_v");
+      }).select("-__v");
 
       if (!thought) {
         return res.status(404).json({ message: "No thought with that ID" });
@@ -31,6 +32,10 @@ module.exports = {
   async createThought(req, res) {
     try {
       const dbThoughtData = await Thought.create(req.body);
+      const user = await User.findOneAndUpdate({username: req.body.username}, {$addToSet: {thoughts: dbThoughtData._id}}, {new: true})
+      if (!user) {
+        return res.status(404).json({ message: "Thought created, but no user  with that username" });
+      }
       res.json(dbThoughtData);
     } catch (err) {
       res.status(500).json(err);
@@ -56,12 +61,17 @@ module.exports = {
   //delete a thought by unique id
   async deleteThought(req, res) {
     try {
-      const thought = await Thought.findOneAndRemove({
+      const thought = await Thought.findOneAndDelete({
         _id: req.params.thoughtId,
       });
       if (!thought) {
         return res.status(404).json({ message: "No thought with that ID" });
       }
+      const user = await User.findOneAndUpdate({username: thought.username}, {$pull: {thoughts: thought._id}}, {new: true})
+      if (!user) {
+        return res.status(404).json({ message: "Thought deleted, but no user  with that username" });
+      }
+      
       res.json({ message: "thought successfully deleted!" });
     } catch (err) {
       res.status(500).json(err);
@@ -88,7 +98,7 @@ module.exports = {
     try {
       const thought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
-        { $pull: { reactions: req.params.reactionId } },
+        { $pull: { reactions: {reactionId: req.params.reactionId }} },
         { runValidators: true, new: true }
       );
       if (!thought) {
